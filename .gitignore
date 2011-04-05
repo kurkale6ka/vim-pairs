@@ -1,0 +1,14 @@
+.*~
+*~
+**/.*~
+**/*~
+.*.swp
+*.swp
+**/.*.swp
+**/*.swp
+.*.stackdump
+*.stackdump
+**/.*.stackdump
+**/*.stackdump
+tags
+**/tags
