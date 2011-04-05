@@ -1,0 +1,3 @@
+= Use "" instead of ci" or ci'
+A plugin which makes it possible to use "" (2 double quotes)
+in place of ci" or ci'
