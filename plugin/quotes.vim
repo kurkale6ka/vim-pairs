@@ -3,7 +3,7 @@
 " Author: Dimitar Dimitrov (mitkofr@yahoo.fr), kurkale6ka
 "
 " Latest version at:
-" http://github.com/kurkale6ka/vimfiles/blob/master/plugin/quotes.vim
+" https://github.com/kurkale6ka/vim-quotes
 "
 " todo: highlight the matched quotes before changing them
 " todo: add support for backticks
