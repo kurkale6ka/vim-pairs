@@ -4,6 +4,13 @@
 "
 " Latest version at:
 " https://github.com/kurkale6ka/vim-quotes
+"
+" todo: '               '      X     "              "
+"       currently results in:
+"       '|'            "              "
+"       which is in accordance with the algorithm defined below.
+"       What one would prefer though is:
+"       '               '            "|"
 
 if exists('g:loaded_quotes') || &compatible || v:version < 700
 
@@ -39,27 +46,27 @@ function! CI_quotes()
       let nb_backticks = strlen(substitute(getline('.'), '[^`]', '', 'g'))
    endif
 
-   if nb_quotes >= 2 && nb_qquotes <  2 && nb_backticks <  2 &&
+   if nb_quotes >= 2 && nb_qquotes < 2 && nb_backticks < 2 &&
       \search ("'", 'cn', line('.'))
 
       normal! ci'
-   else
+   elseif nb_quotes >= 2 && nb_qquotes < 2 && nb_backticks < 2
       let nb_quotes = 0
    endif
 
-   if nb_quotes <  2 && nb_qquotes >= 2 && nb_backticks <  2 &&
+   if nb_quotes < 2 && nb_qquotes >= 2 && nb_backticks < 2 &&
       \search ('"', 'cn', line('.'))
 
       normal! ci"
-   else
+   elseif nb_quotes < 2 && nb_qquotes >= 2 && nb_backticks < 2
       let nb_qquotes = 0
    endif
 
-   if nb_quotes <  2 && nb_qquotes <  2 && nb_backticks >= 2 &&
+   if nb_quotes < 2 && nb_qquotes < 2 && nb_backticks >= 2 &&
       \search ('`', 'cn', line('.'))
 
       normal! ci`
-   else
+   elseif nb_quotes < 2 && nb_qquotes < 2 && nb_backticks >= 2
       let nb_backticks = 0
    endif
 
@@ -77,8 +84,8 @@ function! CI_quotes()
 
          " There are edge cases if setpos is commented out. ex:
          " '       1            '      X      ' will result in:
-         " ''             '                     instead of:
-         " '                    ''
+         " '|'             '                     instead of:
+         " '                    '|'
          "
          " But with setpos, the following won't do anything because the cursor
          " would eventually return to the backtick and ci' isn't correct there:
