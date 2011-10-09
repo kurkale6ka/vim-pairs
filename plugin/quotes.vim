@@ -130,7 +130,7 @@ function! CI_quotes()
       endwhile
 
       " Look for quotes from the top of the screen to the cursor line
-      if nb_quotes < 2 && nb_qquotes < 2 && nb_backticks < 2 && 1 != line('$')
+      if nb_quotes < 2 && nb_qquotes < 2 && nb_backticks < 2
 
          execute line('w0')
          normal! 0
