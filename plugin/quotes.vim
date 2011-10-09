@@ -119,7 +119,7 @@ function! CI_quotes()
 
          normal! $
 
-         if !search ('["'."']", '', line('w$'))
+         if !search ('["'."'`]", '', line('w$'))
             break
          else
             let nb_quotes    = strlen(substitute(getline('.'), "[^']", '', 'g'))
@@ -143,7 +143,7 @@ function! CI_quotes()
 
             normal! $
 
-            if !search ('["'."']", '', stop_line)
+            if !search ('["'."'`]", '', stop_line)
                break
             else
                let nb_quotes    = strlen(substitute(getline('.'), "[^']", '', 'g'))
