@@ -1,10 +1,5 @@
-Use `""` instead of `ci"` or `ci'` or <code>ci`</code>
-======================================================
-
-A plugin which makes it possible to use <b>`""` (2 double quotes)</b>  
----------------------------------------------------------------------
-in place of `ci"` or `ci'` or <code>ci`</code>
-----------------------------------------------
+Use `""` (2 double quotes) instead of `ci"` or `ci'` or <code>ci`</code>
+========================================================================
 
 You don't even have to be on the line you're interested in. The first screen  
 line containing a pair of quotes will be used (a top screen line will be used if  
