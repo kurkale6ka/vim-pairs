@@ -82,9 +82,9 @@ function! CI_quotes()
 
       if search (quote_under_cursor, 'n', line('.'))
 
-         " There are edge cases if setpos is commented out. ex:
+         " There are edge cases if setpos is commented out:
          " '       1            '      X      ' will result in:
-         " '|'             '                     instead of:
+         " '|'             '                    instead of:
          " '                    '|'
          "
          " But with setpos, the following won't do anything because the cursor
