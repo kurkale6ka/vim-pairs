@@ -1,4 +1,5 @@
-" Use "" instead of ci' or ci" or ci`
+" 1. Use "" instead of ci' or ci" or ci`
+" 2. New puctuation objects: ci/, di;, ci*
 "
 " Author: Dimitar Dimitrov (mitkofr@yahoo.fr), kurkale6ka
 "
@@ -19,23 +20,7 @@ let g:loaded_quotes = 1
 let s:savecpo = &cpoptions
 set cpoptions&vim
 
-function! s:CIo(lchars)
-   if search ('['.a:lchars.']', 'b', line('.'))
-      let lchar = getline('.')[col('.') - 1]
-      if search (lchar, '', line('.'))
-         echo 'Same line: between chars'
-         call setpos('.', s:save_cursor)
-         if "'`".'"' =~ lchar
-            execute 'normal! ci'.lchar
-         else
-            execute 'normal! dT'.lchar.'dt'.lchar.'h'
-         endif
-         return '1'.lchar
-      else
-         return '0'.lchar
-      endif
-   endif
-endfunction
+let s:quotes = "'`".'"'
 
 function! CIpunct(chars)
 
@@ -48,16 +33,34 @@ function! CIpunct(chars)
       let char = getline('.')[col('.') - 1]
       if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
          echo 'Under cursor'
-         if "'`".'"' =~ char
-            execute 'normal! ci'.char
+         if s:quotes =~ char
+            execute 'normal! di'.char
          else
-            " execute 'normal! dt'.char.'h'
+            " execute 'normal! vt'.char.'<cr>'
          endif
          let over = 1
       endif
    endif
 
    if !over
+
+      function! s:CIo(lchars)
+         if search ('['.a:lchars.']', 'b', line('.'))
+            let lchar = getline('.')[col('.') - 1]
+            if search (lchar, '', line('.'))
+               echo 'Same line: between chars'
+               call setpos('.', s:save_cursor)
+               if s:quotes =~ lchar
+                  execute 'normal! di'.lchar
+               else
+                  " execute 'normal! T'.lchar.'vt'.lchar.'<cr>'
+               endif
+               return '1'.lchar
+            else
+               return '0'.lchar
+            endif
+         endif
+      endfunction
 
       let chars = a:chars
       let char  = s:CIo(chars)
@@ -73,10 +76,10 @@ function! CIpunct(chars)
             let char = getline('.')[col('.') - 1]
             if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
                echo 'After cursor (second half of buffer)'
-               if "'`".'"' =~ char
-                  execute 'normal! ci'.char
+               if s:quotes =~ char
+                  execute 'normal! di'.char
                else
-                  " execute 'normal! dt'.char.'h'
+                  " return 'execute normal! lvt'.char.'<cr>'
                endif
                let found = 1
                break
@@ -88,8 +91,8 @@ function! CIpunct(chars)
                let char = getline('.')[col('.') - 1]
                if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
                   echo 'After cursor (first half of buffer)'
-                  if "'`".'"' =~ char
-                     execute 'normal! ci'.char
+                  if s:quotes =~ char
+                     execute 'normal! di'.char
                   else
                      " execute 'normal! dt'.char.'h'
                   endif
@@ -107,7 +110,6 @@ function! CIpunct(chars)
       echohl  None
       call setpos('.', s:save_cursor)
    else
-      normal! l
       startinsert
    endif
 
@@ -116,12 +118,12 @@ endfunction
 nmap <silent> <plug>PunctCIpunct :<c-u>call CIpunct('"'."'`")<cr>
 nmap       "" <plug>PunctCIpunct
 
-for char in [ '_', '.', ':', ',', ';', '<bar>', '/', '<bslash>', '*', '+' ]
-   " execute 'xnoremap i' . char . ' :<c-u>silent!normal!T' . char . 'vt' . char . '<cr>'
-   execute 'onoremap i' . char . " :<c-u>call CIpunct('".char."')<cr>"
-   " execute 'xnoremap a' . char . ' :<c-u>silent!normal!F' . char . 'vf' . char . '<cr>'
-   " execute 'onoremap a' . char . ' :normal va' . char . '<cr>'
-endfor
+" for char in [ '_', '.', ':', ',', ';', '<bar>', '/', '<bslash>', '*', '+' ]
+"    " execute 'xnoremap i' . char . ' :<c-u>silent!normal!T' . char . 'vt' . char . '<cr>'
+"    execute 'onoremap i'.char." :<c-u>call CIpunct('".char."')<cr>"
+"    " execute 'xnoremap a' . char . ' :<c-u>silent!normal!F' . char . 'vf' . char . '<cr>'
+"    " execute 'onoremap a' . char . ' :normal va' . char . '<cr>'
+" endfor
 
 let &cpoptions = s:savecpo
 unlet s:savecpo
