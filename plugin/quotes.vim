@@ -21,9 +21,8 @@ let g:loaded_quotes = 1
 let s:savecpo = &cpoptions
 set cpoptions&vim
 
-let s:save_cursor = getpos('.')
-
 function! s:CIo(lchars)
+   let s:save_cursor = getpos('.')
    if search ('['.a:lchars.']', 'b', line('.'))
       let lchar = getline('.')[col('.') - 1]
       if search (lchar, '', line('.'))
@@ -39,6 +38,7 @@ endfunction
 
 function! CIpunct(chars)
 
+   let s:save_cursor = getpos('.')
    let my_changedtick = b:changedtick
    let stop_line      = line('.')
 
@@ -98,7 +98,7 @@ function! CIpunct(chars)
       call setpos('.', s:save_cursor)
    else
       normal! l
-      startinsert
+      " startinsert
    endif
 
 endfunction
