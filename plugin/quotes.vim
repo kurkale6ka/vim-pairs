@@ -22,7 +22,9 @@ set cpoptions&vim
 
 let s:quotes = "'`".'"'
 
-function! CIpunct(chars)
+function! CIpunct(chars, op)
+
+   let op = a:op == 'c' ? 'd' : a:op
 
    let s:save_cursor  = getpos('.')
    let stop_line      =   line('.')
@@ -32,11 +34,15 @@ function! CIpunct(chars)
    if match(getline('.'), '['.a:chars.']', col('.') - 1) == col('.') - 1
       let char = getline('.')[col('.') - 1]
       if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
-         echo 'Under cursor'
+         " echo 'Under cursor'
          if s:quotes =~ char
             execute 'normal! di'.char
          else
-            " execute 'normal! vt'.char.'<cr>'
+            if search (char, 'n', line('.'))
+               execute 'normal! l'.op.'t'.char
+            else
+               execute 'normal!  '.op.'T'.char
+            endif
          endif
          let over = 1
       endif
@@ -48,12 +54,12 @@ function! CIpunct(chars)
          if search ('['.a:lchars.']', 'b', line('.'))
             let lchar = getline('.')[col('.') - 1]
             if search (lchar, '', line('.'))
-               echo 'Same line: between chars'
+               " echo 'Same line: between chars'
                call setpos('.', s:save_cursor)
                if s:quotes =~ lchar
                   execute 'normal! di'.lchar
                else
-                  " execute 'normal! T'.lchar.'vt'.lchar.'<cr>'
+                  execute 'normal! '.op.'T'.lchar.'dt'.lchar
                endif
                return '1'.lchar
             else
@@ -75,11 +81,11 @@ function! CIpunct(chars)
          while search ('['.a:chars.']', '', line('w$'))
             let char = getline('.')[col('.') - 1]
             if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
-               echo 'After cursor (second half of buffer)'
+               " echo 'After cursor (second half of buffer)'
                if s:quotes =~ char
                   execute 'normal! di'.char
                else
-                  " return 'execute normal! lvt'.char.'<cr>'
+                  execute 'normal! l'.op.'t'.char
                endif
                let found = 1
                break
@@ -90,11 +96,11 @@ function! CIpunct(chars)
             while search ('['.a:chars.']', '', stop_line)
                let char = getline('.')[col('.') - 1]
                if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
-                  echo 'After cursor (first half of buffer)'
+                  " echo 'After cursor (first half of buffer)'
                   if s:quotes =~ char
                      execute 'normal! di'.char
                   else
-                     " execute 'normal! dt'.char.'h'
+                     execute 'normal! l'.op.'t'.char
                   endif
                   break
                endif
@@ -105,25 +111,32 @@ function! CIpunct(chars)
    endif
 
    if my_changedtick == b:changedtick
-      echohl  ErrorMsg
-      echo   'Nothing to do'
-      echohl  None
+      " echohl  ErrorMsg
+      " echo   'Nothing to do'
+      " echohl  None
       call setpos('.', s:save_cursor)
    else
-      startinsert
+      if a:op == 'c'
+         startinsert
+      endif
    endif
 
 endfunction
 
-nmap <silent> <plug>PunctCIpunct :<c-u>call CIpunct('"'."'`")<cr>
+nmap <silent> <plug>PunctCIpunct :<c-u>call CIpunct('"'."'`", 'c')<cr>
 nmap       "" <plug>PunctCIpunct
 
-" for char in [ '_', '.', ':', ',', ';', '<bar>', '/', '<bslash>', '*', '+' ]
-"    " execute 'xnoremap i' . char . ' :<c-u>silent!normal!T' . char . 'vt' . char . '<cr>'
-"    execute 'onoremap i'.char." :<c-u>call CIpunct('".char."')<cr>"
-"    " execute 'xnoremap a' . char . ' :<c-u>silent!normal!F' . char . 'vf' . char . '<cr>'
-"    " execute 'onoremap a' . char . ' :normal va' . char . '<cr>'
-" endfor
+for char in [ '_', '.', ':', ',', ';', '<bar>', '/', '<bslash>', '*', '+' ]
+" for char in [ '!', '$', '%', '^', '&', '*', '_', '-', '+', '=', '<bar>', '<bslash>', ',', '.', '/', '?' ]
+   execute 'nnoremap ci'.char." :<c-u>call CIpunct('".char."'".",  'c')<cr>"
+   execute 'nnoremap di'.char." :<c-u>call CIpunct('".char."'".",  'd')<cr>"
+   execute 'nnoremap yi'.char." :<c-u>call CIpunct('".char."'".",  'y')<cr>"
+   " execute 'xnoremap  i'.char." :<c-u>call CIpunct('".char."'".",  'v')<cr>"
+   " execute 'nnoremap ca'.char." :<c-u>call CIpunct('".char."'".", 'ac')<cr>"
+   " execute 'nnoremap da'.char." :<c-u>call CIpunct('".char."'".", 'ad')<cr>"
+   " execute 'nnoremap ya'.char." :<c-u>call CIpunct('".char."'".", 'ay')<cr>"
+   " execute 'xnoremap  a'.char." :<c-u>call CIpunct('".char."'".", 'av')<cr>"
+endfor
 
 let &cpoptions = s:savecpo
 unlet s:savecpo
