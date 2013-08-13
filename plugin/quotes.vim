@@ -66,16 +66,16 @@ function! CIpunct(chars, op)
          let pattern = s:single_char ? escape(a:lchars, '^$~.') : '['.a:lchars.']'
          if search (pattern, 'b', line('.'))
             let lchar = s:single_char ? a:lchars : getline('.')[col('.') - 1]
-            if search (escape(lchar, '^$~.'), '', line('.'))
+            if search (escape(lchar, '^$~.'), 'n', line('.'))
                let s:success = 1
-               call setpos('.', s:save_cursor)
                if stridx(s:quotes, lchar) != -1
+                  call setpos('.', s:save_cursor)
                   execute 'normal! di'.lchar
                else
                   if s:oprange == 'a'
-                     execute 'normal! '.s:op.'F'.lchar.'df'.lchar
+                     execute 'normal!  '.s:op.'f'.lchar
                   else
-                     execute 'normal! '.s:op.'T'.lchar.'dt'.lchar
+                     execute 'normal! l'.s:op.'t'.lchar
                   endif
                endif
                return '1'.lchar
