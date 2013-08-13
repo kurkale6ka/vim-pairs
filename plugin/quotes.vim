@@ -24,7 +24,7 @@ let s:quotes = "'`".'"'
 
 function! CIpunct(chars, op)
 
-   let s:op = a:op =~ 'c' ? 'd' : strpart(a:op, 0, 1)
+   let s:op      = strpart(a:op, 0, 1) == 'c' ? 'd' : strpart(a:op, 0, 1)
    let s:oprange = strpart(a:op, 1)
 
    let s:save_cursor  = getpos('.')
@@ -33,12 +33,12 @@ function! CIpunct(chars, op)
 
    let s:success = 0
    let over = 0
+   " Match under cursor {{{1
    if match(getline('.'), '['.a:chars.']', col('.') - 1) == col('.') - 1
       let char = getline('.')[col('.') - 1]
       if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
          let s:success = 1
-         " echo 'Under cursor'
-         if s:quotes =~ char
+         if stridx(s:quotes, char) != -1
             execute 'normal! di'.char
          else
             if search (char, 'n', line('.'))
@@ -60,15 +60,14 @@ function! CIpunct(chars, op)
    endif
 
    if !over
-
+      " @  X   @ cursor between a pair on the current line {{{1
       function! s:CIo(lchars)
          if search ('['.a:lchars.']', 'b', line('.'))
             let lchar = getline('.')[col('.') - 1]
             if search (lchar, '', line('.'))
                let s:success = 1
-               " echo 'Same line: between chars'
                call setpos('.', s:save_cursor)
-               if s:quotes =~ lchar
+               if stridx(s:quotes, lchar) != -1
                   execute 'normal! di'.lchar
                else
                   if s:oprange == 'a'
@@ -91,6 +90,8 @@ function! CIpunct(chars, op)
          let char  = s:CIo(chars)
       endwhile
 
+      " X  @   @ ↓ look for a match after the cursor, also past the current line {{{1
+      " Quotes: choose the closest one to the left, forming a pair
       if strpart(char, 0, 1) == 0
          call setpos('.', s:save_cursor)
          let found = 0
@@ -98,8 +99,7 @@ function! CIpunct(chars, op)
             let char = getline('.')[col('.') - 1]
             if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
                let s:success = 1
-               " echo 'After cursor (second half of buffer)'
-               if s:quotes =~ char
+               if stridx(s:quotes, char) != -1
                   execute 'normal! di'.char
                else
                   if s:oprange == 'a'
@@ -112,14 +112,14 @@ function! CIpunct(chars, op)
                break
             endif
          endwhile
+         " X  @   @ ↻ look for a match after the cursor past the EOF {{{1
          if found == 0
             goto
             while search ('['.a:chars.']', '', stop_line)
                let char = getline('.')[col('.') - 1]
                if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
                   let s:success = 1
-                  " echo 'After cursor (first half of buffer)'
-                  if s:quotes =~ char
+                  if stridx(s:quotes, char) != -1
                      execute 'normal! di'.char
                   else
                      if s:oprange == 'a'
@@ -133,27 +133,23 @@ function! CIpunct(chars, op)
             endwhile
          endif
       endif
-
-   endif
+   endif " }}}1
 
    if s:success == 1 && strpart(a:op, 0, 1) == 'c'
       startinsert
    elseif s:success == 0 || s:success == 1 && my_changedtick == b:changedtick
       if s:op != 'y'
-         echohl  ErrorMsg
-         echo   'Nothing to do'
-         echohl  None
+         echohl ErrorMsg | echo 'Nothing to do' | echohl None
       endif
       call setpos('.', s:save_cursor)
    endif
 
 endfunction
 
-nmap <silent> <plug>PunctCIpunct :<c-u>call CIpunct('"'."'`", 'ci')<cr>
+nmap <silent> <plug>PunctCIpunct :<c-u>call CIpunct("'`".'"', 'ci')<cr>
 nmap       "" <plug>PunctCIpunct
 
-" for char in [ '!', '$', '%', '^', '&', '*', '_', '-', '+', '=', ':', ';', '@', '~', '#', '<bar>', '<bslash>', ',', '.', '?', '/' ]
-for char in [ '!',      '%',      '&', '*', '_', '-', '+', '=', ':', ';', '@',      '#', '<bar>',             ',',      '?', '/' ]
+for char in ['!','$','%','^','&','*','_','-','+','=',':',';','@','~','#','<bar>','<bslash>',',','.','?','/']
    execute 'nnoremap <silent> ci'.char." :<c-u>call CIpunct('".char."'".", 'ci')<cr>"
    execute 'nnoremap <silent> di'.char." :<c-u>call CIpunct('".char."'".", 'di')<cr>"
    execute 'nnoremap <silent> yi'.char." :<c-u>call CIpunct('".char."'".", 'yi')<cr>"
