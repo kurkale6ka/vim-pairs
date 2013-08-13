@@ -33,16 +33,17 @@ function! CIpunct(chars, op)
 
    let s:success = 0
    let over = 0
-   let s:pattern = strlen(a:chars) > 1 ? '['.a:chars.']' : escape(a:chars, '^$~.')
+   let s:single_char = strlen(a:chars) == 1 ? 1 : 0
+   let s:pattern = s:single_char ? escape(a:chars, '^$~.') : '['.a:chars.']'
    " Match under cursor {{{1
    if match(getline('.'), s:pattern, col('.') - 1) == col('.') - 1
-      let char = getline('.')[col('.') - 1]
+      let char = s:single_char ? a:chars : getline('.')[col('.') - 1]
       if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
          let s:success = 1
          if stridx(s:quotes, char) != -1
             execute 'normal! di'.char
          else
-            if search (char, 'n', line('.'))
+            if search (escape(char, '^$~.'), 'n', line('.'))
                if s:oprange == 'a'
                   execute 'normal!  '.s:op.'f'.char
                else
@@ -63,9 +64,10 @@ function! CIpunct(chars, op)
    if !over
       " @  X   @ cursor between a pair on the current line {{{1
       function! s:CIo(lchars)
-         if search (a:lchars, 'b', line('.'))
-            let lchar = getline('.')[col('.') - 1]
-            if search (lchar, '', line('.'))
+         let pattern = s:single_char ? escape(a:lchars, '^$~.') : '['.a:lchars.']'
+         if search (pattern, 'b', line('.'))
+            let lchar = s:single_char ? a:lchars : getline('.')[col('.') - 1]
+            if search (escape(lchar, '^$~.'), '', line('.'))
                let s:success = 1
                call setpos('.', s:save_cursor)
                if stridx(s:quotes, lchar) != -1
@@ -84,12 +86,14 @@ function! CIpunct(chars, op)
          endif
       endfunction
 
-      let chars = s:pattern
+      let chars = a:chars
       let char  = s:CIo(chars)
-      while strpart(char, 0, 1) == 0 && strpart(char, 1) != ''
-         let chars = substitute(chars, strpart(char, 1), '', '')
-         let char  = s:CIo(chars)
-      endwhile
+      if !s:single_char
+         while strpart(char, 0, 1) == 0 && strpart(char, 1) != ''
+            let chars = substitute(chars, strpart(char, 1), '', 'g')
+            let char  = s:CIo(chars)
+         endwhile
+      endif
 
       " X  @   @ ↓ look for a match after the cursor, also past the current line {{{1
       " Quotes: choose the closest one to the left, forming a pair
@@ -97,7 +101,7 @@ function! CIpunct(chars, op)
          call setpos('.', s:save_cursor)
          let found = 0
          while search (s:pattern, '', line('w$'))
-            let char = getline('.')[col('.') - 1]
+            let char = s:single_char ? a:chars : getline('.')[col('.') - 1]
             if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
                let s:success = 1
                if stridx(s:quotes, char) != -1
@@ -117,7 +121,7 @@ function! CIpunct(chars, op)
          if found == 0
             goto
             while search (s:pattern, '', stop_line)
-               let char = getline('.')[col('.') - 1]
+               let char = s:single_char ? a:chars : getline('.')[col('.') - 1]
                if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
                   let s:success = 1
                   if stridx(s:quotes, char) != -1
