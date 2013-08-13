@@ -28,7 +28,6 @@ function! CIpunct(chars, op)
    let s:oprange = strpart(a:op, 1)
 
    let s:save_cursor  = getpos('.')
-   let stop_line      =   line('.')
    let my_changedtick = b:changedtick
 
    let s:success = 0
@@ -120,7 +119,7 @@ function! CIpunct(chars, op)
          " X  @   @ ↻ look for a match after the cursor past the EOF {{{1
          if found == 0
             goto
-            while search (s:pattern, '', stop_line)
+            while search (s:pattern, '', s:save_cursor[1])
                let char = s:single_char ? a:chars : getline('.')[col('.') - 1]
                if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
                   let s:success = 1
