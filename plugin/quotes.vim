@@ -33,8 +33,9 @@ function! CIpunct(chars, op)
 
    let s:success = 0
    let over = 0
+   let s:pattern = strlen(a:chars) > 1 ? '['.a:chars.']' : escape(a:chars, '^$~.')
    " Match under cursor {{{1
-   if match(getline('.'), '['.a:chars.']', col('.') - 1) == col('.') - 1
+   if match(getline('.'), s:pattern, col('.') - 1) == col('.') - 1
       let char = getline('.')[col('.') - 1]
       if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
          let s:success = 1
@@ -62,7 +63,7 @@ function! CIpunct(chars, op)
    if !over
       " @  X   @ cursor between a pair on the current line {{{1
       function! s:CIo(lchars)
-         if search ('['.a:lchars.']', 'b', line('.'))
+         if search (a:lchars, 'b', line('.'))
             let lchar = getline('.')[col('.') - 1]
             if search (lchar, '', line('.'))
                let s:success = 1
@@ -83,7 +84,7 @@ function! CIpunct(chars, op)
          endif
       endfunction
 
-      let chars = a:chars
+      let chars = s:pattern
       let char  = s:CIo(chars)
       while strpart(char, 0, 1) == 0 && strpart(char, 1) != ''
          let chars = substitute(chars, strpart(char, 1), '', '')
@@ -95,7 +96,7 @@ function! CIpunct(chars, op)
       if strpart(char, 0, 1) == 0
          call setpos('.', s:save_cursor)
          let found = 0
-         while search ('['.a:chars.']', '', line('w$'))
+         while search (s:pattern, '', line('w$'))
             let char = getline('.')[col('.') - 1]
             if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
                let s:success = 1
@@ -115,7 +116,7 @@ function! CIpunct(chars, op)
          " X  @   @ ↻ look for a match after the cursor past the EOF {{{1
          if found == 0
             goto
-            while search ('['.a:chars.']', '', stop_line)
+            while search (s:pattern, '', stop_line)
                let char = getline('.')[col('.') - 1]
                if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
                   let s:success = 1
@@ -149,15 +150,15 @@ endfunction
 nmap <silent> <plug>PunctCIpunct :<c-u>call CIpunct("'`".'"', 'ci')<cr>
 nmap       "" <plug>PunctCIpunct
 
-for char in ['!','$','%','^','&','*','_','-','+','=',':',';','@','~','#','<bar>','<bslash>',',','.','?','/']
-   execute 'nnoremap <silent> ci'.char." :<c-u>call CIpunct('".char."'".", 'ci')<cr>"
-   execute 'nnoremap <silent> di'.char." :<c-u>call CIpunct('".char."'".", 'di')<cr>"
-   execute 'nnoremap <silent> yi'.char." :<c-u>call CIpunct('".char."'".", 'yi')<cr>"
-   " execute 'xnoremap <silent>  i'.char." :<c-u>call CIpunct('".char."'".", 'vi')<cr>"
-   execute 'nnoremap <silent> ca'.char." :<c-u>call CIpunct('".char."'".", 'ca')<cr>"
-   execute 'nnoremap <silent> da'.char." :<c-u>call CIpunct('".char."'".", 'da')<cr>"
-   execute 'nnoremap <silent> ya'.char." :<c-u>call CIpunct('".char."'".", 'ya')<cr>"
-   " execute 'xnoremap <silent>  a'.char." :<c-u>call CIpunct('".char."'".", 'va')<cr>"
+for p in ['!','$','%','^','&','*','_','-','+','=',':',';','@','~','#','\|','<bslash>',',','.','?','/']
+   execute 'nnoremap <silent> ci'.p." :<c-u>call CIpunct('".p."'".", 'ci')<cr>"
+   execute 'nnoremap <silent> di'.p." :<c-u>call CIpunct('".p."'".", 'di')<cr>"
+   execute 'nnoremap <silent> yi'.p." :<c-u>call CIpunct('".p."'".", 'yi')<cr>"
+   " execute 'xnoremap <silent>  i'.p." :<c-u>call CIpunct('".p."'".", 'vi')<cr>"
+   execute 'nnoremap <silent> ca'.p." :<c-u>call CIpunct('".p."'".", 'ca')<cr>"
+   execute 'nnoremap <silent> da'.p." :<c-u>call CIpunct('".p."'".", 'da')<cr>"
+   execute 'nnoremap <silent> ya'.p." :<c-u>call CIpunct('".p."'".", 'ya')<cr>"
+   " execute 'xnoremap <silent>  a'.p." :<c-u>call CIpunct('".p."'".", 'va')<cr>"
 endfor
 
 let &cpoptions = s:savecpo
