@@ -1,6 +1,13 @@
-" 1. Use "" instead of ci' or ci" or ci`
-" 2. New punctuation text objects: ci/, di;, yi*, ...
-"                                  ca/, da;, ya*, ...
+" New punctuation text objects:
+"
+"    ci/, di;, yi*, vi@ ...
+"    ca/, da;, ya*, va@ ...
+"
+"    ciq (~ "") changes content inside ANY kind of quotes
+"    vaq, yiq ...
+"
+"    ci<space>, da<space> ... modify ANY punctuation object
+"
 " Author: Dimitar Dimitrov (mitkofr@yahoo.fr), kurkale6ka
 "
 " Latest version at:
@@ -20,40 +27,34 @@ let g:loaded_ptext_objects = 1
 let s:savecpo = &cpoptions
 set cpoptions&vim
 
-let s:quotes = "'`".'"'
+function! CIpunct(chars, oprange)
 
-function! CIpunct(chars, op)
-
-   let s:op      = strpart(a:op, 0, 1) == 'c' ? 'd' : strpart(a:op, 0, 1)
-   let s:oprange = strpart(a:op, 1)
-
+   let s:oprange      = a:oprange
    let s:save_cursor  = getpos('.')
-   let my_changedtick = b:changedtick
 
    let s:success = 0
    let over = 0
    let s:single_char = strlen(a:chars) == 1 ? 1 : 0
-   let s:pattern = s:single_char ? escape(a:chars, '^$~.') : '['.a:chars.']'
-   " Match under cursor {{{1
+   let s:pattern = s:single_char ? escape(a:chars, '^.~$') : '['.a:chars.']'
+
+   " Match under cursor... {{{1
    if match(getline('.'), s:pattern, col('.') - 1) == col('.') - 1
       let char = s:single_char ? a:chars : getline('.')[col('.') - 1]
       if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
          let s:success = 1
-         if stridx(s:quotes, char) != -1
-            execute 'normal! di'.char
-         else
-            if search (escape(char, '^$~.'), 'n', line('.'))
-               if s:oprange == 'a'
-                  execute 'normal!  '.s:op.'f'.char
-               else
-                  execute 'normal! l'.s:op.'t'.char
-               endif
+         " ...forming a pair to the right
+         if search (escape(char, '^.~$'), 'n', line('.'))
+            if s:oprange == 'a'
+               execute 'normal!  vf'.char
             else
-               if s:oprange == 'a'
-                  execute 'normal! v'.s:op.'F'.char
-               else
-                  execute 'normal!  '.s:op.'T'.char
-               endif
+               execute 'normal! lvt'.char
+            endif
+         " ...or to the left
+         else
+            if s:oprange == 'a'
+               execute 'normal!  vF'.char
+            else
+               execute 'normal! hvT'.char
             endif
          endif
          let over = 1
@@ -63,20 +64,15 @@ function! CIpunct(chars, op)
    if !over
       " @  X   @ cursor between a pair on the current line {{{1
       function! s:CIo(lchars)
-         let pattern = s:single_char ? escape(a:lchars, '^$~.') : '['.a:lchars.']'
+         let pattern = s:single_char ? escape(a:lchars, '^.~$') : '['.a:lchars.']'
          if search (pattern, 'b', line('.'))
             let lchar = s:single_char ? a:lchars : getline('.')[col('.') - 1]
-            if search (escape(lchar, '^$~.'), 'n', line('.'))
+            if search (escape(lchar, '^.~$'), 'n', line('.'))
                let s:success = 1
-               if stridx(s:quotes, lchar) != -1
-                  call setpos('.', s:save_cursor)
-                  execute 'normal! di'.lchar
+               if s:oprange == 'a'
+                  execute 'normal!  vf'.lchar
                else
-                  if s:oprange == 'a'
-                     execute 'normal!  '.s:op.'f'.lchar
-                  else
-                     execute 'normal! l'.s:op.'t'.lchar
-                  endif
+                  execute 'normal! lvt'.lchar
                endif
                return '1'.lchar
             else
@@ -103,14 +99,10 @@ function! CIpunct(chars, op)
             let char = s:single_char ? a:chars : getline('.')[col('.') - 1]
             if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
                let s:success = 1
-               if stridx(s:quotes, char) != -1
-                  execute 'normal! di'.char
+               if s:oprange == 'a'
+                  execute 'normal!  vf'.char
                else
-                  if s:oprange == 'a'
-                     execute 'normal!  '.s:op.'f'.char
-                  else
-                     execute 'normal! l'.s:op.'t'.char
-                  endif
+                  execute 'normal! lvt'.char
                endif
                let found = 1
                break
@@ -123,14 +115,10 @@ function! CIpunct(chars, op)
                let char = s:single_char ? a:chars : getline('.')[col('.') - 1]
                if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
                   let s:success = 1
-                  if stridx(s:quotes, char) != -1
-                     execute 'normal! di'.char
+                  if s:oprange == 'a'
+                     execute 'normal!  vf'.char
                   else
-                     if s:oprange == 'a'
-                        execute 'normal!  '.s:op.'f'.char
-                     else
-                        execute 'normal! l'.s:op.'t'.char
-                     endif
+                     execute 'normal! lvt'.char
                   endif
                   break
                endif
@@ -139,30 +127,37 @@ function! CIpunct(chars, op)
       endif
    endif " }}}1
 
-   if s:success == 1 && strpart(a:op, 0, 1) == 'c'
-      startinsert
-   elseif s:success == 0 || s:success == 1 && my_changedtick == b:changedtick
-      if s:op != 'y'
-         echohl ErrorMsg | echo 'Nothing to do' | echohl None
-      endif
+   if s:success == 0
       call setpos('.', s:save_cursor)
+      echohl ErrorMsg | echo 'Nothing to do' | echohl None
+   " ex: ci@ when X @@
+   " my_changedtick == ... can't happen because CIpunct doesn't do any changes !
+   " elseif my_changedtick == b:changedtick && v:operator != 'y' || mode() != 'v'
+      " echohl ErrorMsg | echo 'Nothing to do' | echohl None
    endif
 
 endfunction
 
-nmap <silent> <plug>PunctCIpunct :<c-u>call CIpunct("'`".'"', 'ci')<cr>
-nmap       "" <plug>PunctCIpunct
-
-for p in ['!','$','%','^','&','*','_','-','+','=',':',';','@','~','#','\|','<bslash>',',','.','?','/']
-   execute 'nnoremap <silent> ci'.p." :<c-u>call CIpunct('".p."'".", 'ci')<cr>"
-   execute 'nnoremap <silent> di'.p." :<c-u>call CIpunct('".p."'".", 'di')<cr>"
-   execute 'nnoremap <silent> yi'.p." :<c-u>call CIpunct('".p."'".", 'yi')<cr>"
-   " execute 'xnoremap <silent>  i'.p." :<c-u>call CIpunct('".p."'".", 'vi')<cr>"
-   execute 'nnoremap <silent> ca'.p." :<c-u>call CIpunct('".p."'".", 'ca')<cr>"
-   execute 'nnoremap <silent> da'.p." :<c-u>call CIpunct('".p."'".", 'da')<cr>"
-   execute 'nnoremap <silent> ya'.p." :<c-u>call CIpunct('".p."'".", 'ya')<cr>"
-   " execute 'xnoremap <silent>  a'.p." :<c-u>call CIpunct('".p."'".", 'va')<cr>"
+for p in ['!','$','%','^','&','*','_','-','+','=',':',';','@','~','#','<bar>','<bslash>',',','.','?','/']
+   execute 'onoremap <silent> i'.p." :<c-u>call CIpunct('".p."'".", 'i')<cr>"
+   execute 'onoremap <silent> a'.p." :<c-u>call CIpunct('".p."'".", 'a')<cr>"
+   execute 'xnoremap <silent> i'.p." :<c-u>call CIpunct('".p."'".", 'i')<cr>"
+   execute 'xnoremap <silent> a'.p." :<c-u>call CIpunct('".p."'".", 'a')<cr>"
 endfor
+
+onoremap <silent> iq :<c-u>call CIpunct("'`".'"', 'i')<cr>
+onoremap <silent> aq :<c-u>call CIpunct("'`".'"', 'a')<cr>
+xnoremap <silent> iq :<c-u>call CIpunct("'`".'"', 'i')<cr>
+xnoremap <silent> aq :<c-u>call CIpunct("'`".'"', 'a')<cr>
+
+" [-`!"$%^&*_+=:;@~#|\,.?/'] am I including < for instance, from <bar> Vs | ?
+onoremap <silent> i<space> :<c-u>call CIpunct('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'i')<cr>
+onoremap <silent> a<space> :<c-u>call CIpunct('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'a')<cr>
+xnoremap <silent> i<space> :<c-u>call CIpunct('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'i')<cr>
+xnoremap <silent> a<space> :<c-u>call CIpunct('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'a')<cr>
+
+nmap <silent> <plug>PunctCIpunct :normal ciq<cr>
+nmap       "" <plug>PunctCIpuncta
 
 let &cpoptions = s:savecpo
 unlet s:savecpo
