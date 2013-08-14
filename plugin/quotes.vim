@@ -12,6 +12,8 @@
 "
 " Latest version at:
 " https://github.com/kurkale6ka/vim-quotes
+"
+" TODO: Fix @@ and stopinsert if nothing to do after cix !!!
 
 if exists('g:loaded_ptext_objects') || &compatible || v:version < 700
    if &compatible && &verbose
@@ -33,7 +35,6 @@ function! CIpunct(chars, oprange)
    let s:save_cursor  = getpos('.')
 
    let s:success = 0
-   let over = 0
    let s:single_char = strlen(a:chars) == 1 ? 1 : 0
    let s:pattern = s:single_char ? escape(a:chars, '^.~$') : '['.a:chars.']'
 
@@ -57,11 +58,10 @@ function! CIpunct(chars, oprange)
                execute 'normal! hvT'.char
             endif
          endif
-         let over = 1
       endif
    endif
 
-   if !over
+   if !s:success
       " @  X   @ cursor between a pair on the current line {{{1
       function! s:CIo(lchars)
          let pattern = s:single_char ? escape(a:lchars, '^.~$') : '['.a:lchars.']'
@@ -74,27 +74,24 @@ function! CIpunct(chars, oprange)
                else
                   execute 'normal! lvt'.lchar
                endif
-               return '1'.lchar
-            else
-               return '0'.lchar
             endif
+            return lchar
          endif
       endfunction
 
       let chars = a:chars
       let char  = s:CIo(chars)
       if !s:single_char
-         while strpart(char, 0, 1) == 0 && strpart(char, 1) != ''
-            let chars = substitute(chars, strpart(char, 1), '', 'g')
+         while !s:success && char != ''
+            let chars = substitute(chars, char, '', 'g')
             let char  = s:CIo(chars)
          endwhile
       endif
 
       " X  @   @ ↓ look for a match after the cursor, also past the current line {{{1
       " Quotes: choose the closest one to the left, forming a pair
-      if strpart(char, 0, 1) == 0
+      if !s:success
          call setpos('.', s:save_cursor)
-         let found = 0
          while search (s:pattern, '', line('w$'))
             let char = s:single_char ? a:chars : getline('.')[col('.') - 1]
             if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
@@ -104,12 +101,11 @@ function! CIpunct(chars, oprange)
                else
                   execute 'normal! lvt'.char
                endif
-               let found = 1
                break
             endif
          endwhile
          " X  @   @ ↻ look for a match after the cursor past the EOF {{{1
-         if found == 0
+         if !s:success
             goto
             while search (s:pattern, '', s:save_cursor[1])
                let char = s:single_char ? a:chars : getline('.')[col('.') - 1]
@@ -127,7 +123,7 @@ function! CIpunct(chars, oprange)
       endif
    endif " }}}1
 
-   if s:success == 0
+   if !s:success
       call setpos('.', s:save_cursor)
       echohl ErrorMsg | echo 'Nothing to do' | echohl None
    " ex: ci@ when X @@
