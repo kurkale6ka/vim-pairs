@@ -14,6 +14,8 @@
 " https://github.com/kurkale6ka/vim-quotes
 "
 " TODO: Fix @@ and stopinsert if nothing to do after cix !!!
+"       Describe algo
+"       Explain difference with    '       '          '
 
 if exists('g:loaded_ptext_objects') || &compatible || v:version < 700
    if &compatible && &verbose
@@ -31,13 +33,12 @@ set cpoptions&vim
 
 function! Process_ppair(chars, oprange)
 
-   let s:oprange      = a:oprange
-   let s:save_cursor  = getpos('.')
-
-   let s:success = 0
-   let s:chars = a:chars
+   let s:save_cursor = getpos('.')
+   let s:chars       = a:chars
+   let s:oprange     = a:oprange
+   let s:success     = 0
    let s:single_char = strlen(s:chars) == 1 ? 1 : 0
-   let s:pattern = s:single_char ? escape(s:chars, '^.~$') : '['.s:chars.']'
+   let s:pattern     = s:single_char ? escape(s:chars, '^.~$') : '['.s:chars.']'
 
    " Match under cursor... {{{1
    if match(getline('.'), s:pattern, col('.') - 1) == col('.') - 1
@@ -49,6 +50,7 @@ function! Process_ppair(chars, oprange)
          if c != 0
             if s:oprange == 'a'
                execute 'normal!  vf'.char
+            " @@ case
             elseif c > s:save_cursor[2] + 1
                execute 'normal! lvt'.char
             endif
@@ -70,8 +72,10 @@ function! Process_ppair(chars, oprange)
       " @  X   @ cursor between a pair on the current line {{{1
       function! s:Process_ippair(lchars)
          let pattern = s:single_char ? escape(a:lchars, '^.~$') : '['.a:lchars.']'
+         " Look for first match to the left...
          if search (pattern, 'b', line('.'))
             let lchar = s:single_char ? a:lchars : getline('.')[col('.') - 1]
+            " ...and check for a closing one to the right
             if search (escape(lchar, '^.~$'), 'n', line('.'))
                let s:success = 1
                if s:oprange == 'a'
@@ -93,9 +97,8 @@ function! Process_ppair(chars, oprange)
          endwhile
       endif
 
-      " X  @   @ ↓ look for a match after the cursor, also past the current line {{{1
-      " Quotes: choose the closest one to the left, forming a pair
       if !s:success
+         " X  @   @ ↓ look for a match after the cursor, also past the current line {{{1
          function! s:Process_oppair(stop_line)
             while search (s:pattern, '', a:stop_line)
                let char = s:single_char ? s:chars : getline('.')[col('.') - 1]
@@ -104,6 +107,7 @@ function! Process_ppair(chars, oprange)
                   if s:oprange == 'a'
                      execute 'normal!  vf'.char
                   else
+                     " @@ case
                      " let [l, c] = searchpos (escape(char, '^.~$'), 'n', line('.'))
                      " if c > col('.') + 1
                      execute 'normal! lvt'.char
