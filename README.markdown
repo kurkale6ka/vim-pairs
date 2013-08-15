@@ -4,13 +4,13 @@ New punctuation text objects:
    `ci/`, `di;`, `yi*`, `vi@` ...  
    `ca/`, `da;`, `ya*`, `va@` ...
 
-   `ciq` (or `""`) changes content inside *ANY* kind of quotes  
+   `ciq` (or `""`) changes content inside **ANY** kind of quotes  
    `vaq`, `yiq` ...
 
-   `ci<space>`, `da<space>` ... modify *ANY* punctuation object
+   `ci<space>`, `da<space>` ... modify **ANY** punctuation object
 
-__Supported punctuation signs:__  
-`-`,<code>`</code>,`!`,`"`,`$`,`%`,`^`,`&`,`*`,`_`,`+`,`=`,`:`,`;`,`@`,`~`,`#`,`|`,`\`,`,`,`.`,`?`,`/`,`'`
+_Supported punctuation signs:_  
+`-`,`````,`!`,`"`,`$`,`%`,`^`,`&`,`*`,`_`,`+`,`=`,`:`,`;`,`@`,`~`,`#`,`|`,`\`,`,`,`.`,`?`,`/`,`'`
 
 You don't even have to be on the line you're interested in. The first screen  
 line containing a pair of quotes will be used (a top screen line will be used if  
