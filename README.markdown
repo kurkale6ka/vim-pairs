@@ -21,10 +21,10 @@ Supported punctuation signs:
 ### Algorithm:  
 Do in order. If a step succeeds skip the rest.
 
-1. _same line_:       match under the cursor: act to the right if possible, else to the left
-2. _same line_:       jump to a match on the left, then act to the right if possible or else repeat
+1. _same line_: match under the cursor: act to the right if possible, else to the left
+2. _same line_: jump to a match on the left, then act to the right if possible or else repeat
 3. _same line and **↓**_: try matching to the right, also past the current line
-                   if no match till EOF, start from byte one and do the same till initial position of cursor
+   if no match till EOF, start from byte one and do the same till initial position of cursor
 
 Examples:
 ---------
@@ -49,7 +49,7 @@ Lorem    dolor @        @        [@]  adipisicing elit
 Lorem    dolor @        @---------@   adipisicing elit
 ```
 **Note**: the above is different from what **Vim** would do.  
-_explanation_: `'      '      [']` then `ci'` WON'T change anything!
+_explanation_: `'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[']` then `ci'` WON'T change anything!
 
 ---
 `di;` or `di<space>`
