@@ -24,7 +24,6 @@ Do in order. If a step succeeds skip the rest.
 3 same line and ↓: try matching to the right, also past the current line
                    if no match till EOF, start from byte one and do the same till initial position of cursor
 
-
 **_Examples_**:
 
 [] and | will represent the cursor
