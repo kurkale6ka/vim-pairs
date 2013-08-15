@@ -98,7 +98,7 @@ function! Process_ppair(chars, oprange)
       endif
 
       if !s:success
-         " X  @   @ ↓ look for a match after the cursor, also past the current line {{{1
+         " X  @   @ cursor before a pair {{{1
          function! s:Process_oppair(stop_line)
             while search (s:pattern, '', a:stop_line)
                let char = s:single_char ? s:chars : getline('.')[col('.') - 1]
@@ -122,10 +122,11 @@ function! Process_ppair(chars, oprange)
          endfunction
 
          call setpos('.', s:save_cursor)
+         " ↓ look for a match after the cursor, also past the current line
          call s:Process_oppair(line('w$'))
-         " X  @   @ ↻ look for a match after the cursor past the EOF {{{1
          if !s:success
             goto
+            " ↻ match after the cursor past the EOF
             call s:Process_oppair(s:save_cursor[1])
          endif
       endif
