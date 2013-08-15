@@ -49,7 +49,7 @@ Lorem    dolor @        @        [@]  adipisicing elit
 Lorem    dolor @        @---------@   adipisicing elit
 ```
 **Note**: the above is different from what **Vim** would do.  
-_explanation_: `'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[']` then `ci'` WON'T change anything!
+_explanation_: `'      '      [']` then `ci'` WON'T change anything!
 
 ---
 `di;` or `di<space>`
