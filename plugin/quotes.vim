@@ -1,221 +1,168 @@
-" Use "" instead of ci' or ci" or ci`
+" New punctuation text objects:
+"
+"    ci/, di;, yi*, vi@ ...
+"    ca/, da;, ya*, va@ ...
+"
+"    ciq (or "") changes content inside ANY kind of quotes
+"    vaq, yiq ...
+"
+"    ci<space>, da<space> ... modify ANY punctuation object
 "
 " Author: Dimitar Dimitrov (mitkofr@yahoo.fr), kurkale6ka
 "
 " Latest version at:
 " https://github.com/kurkale6ka/vim-quotes
 "
-" todo: '               '      X     "              "
-"       currently results in:
-"       '|'            "              "
-"       which is in accordance with the algorithm defined below.
-"       What one would prefer though is:
-"       '               '            "|"
+" TODO: Fix @@ and stopinsert if nothing to do after cix !!!
+"       Describe algo
+"       Explain difference with    '       '          '
 
-if exists('g:loaded_quotes') || &compatible || v:version < 700
-
+if exists('g:loaded_ptext_objects') || &compatible || v:version < 700
    if &compatible && &verbose
-      echo "Quotes is not designed to work in compatible mode."
+      echo "Punctuation Text Objects is not designed to work in compatible mode."
    elseif v:version < 700
-      echo "Quotes needs Vim 7.0 or above to work correctly."
+      echo "Punctuation Text Objects needs Vim 7.0 or above to work correctly."
    endif
-
    finish
 endif
 
-let g:loaded_quotes = 1
+let g:loaded_ptext_objects = 1
 
 let s:savecpo = &cpoptions
 set cpoptions&vim
 
-function! CI_quotes()
+function! Process_ppair(chars, oprange)
 
-   let my_changedtick = b:changedtick
-   let save_cursor    = getpos(".")
-   let stop_line      = line('.')
+   let s:save_cursor = getpos('.')
+   let s:chars       = a:chars
+   let s:oprange     = a:oprange
+   let s:success     = 0
+   let s:single_char = strlen(s:chars) == 1 ? 1 : 0
+   let s:pattern     = s:single_char ? escape(s:chars, '^.~$') : '['.s:chars.']'
 
-   " 1. In this first section, all calculations are done without quitting the
-   "    current line.
-   if !search ('["' . "'`]", 'cn', line('.'))
-      let nb_quotes    = 0
-      let nb_qquotes   = 0
-      let nb_backticks = 0
-   else
-      let nb_quotes    = strlen(substitute(getline('.'), "[^']", '', 'g'))
-      let nb_qquotes   = strlen(substitute(getline('.'), '[^"]', '', 'g'))
-      let nb_backticks = strlen(substitute(getline('.'), '[^`]', '', 'g'))
-   endif
-
-   if nb_quotes >= 2 && nb_qquotes < 2 && nb_backticks < 2 &&
-      \search ("'", 'cn', line('.'))
-
-      normal! ci'
-   elseif nb_quotes >= 2 && nb_qquotes < 2 && nb_backticks < 2
-      let nb_quotes = 0
-   endif
-
-   if nb_quotes < 2 && nb_qquotes >= 2 && nb_backticks < 2 &&
-      \search ('"', 'cn', line('.'))
-
-      normal! ci"
-   elseif nb_quotes < 2 && nb_qquotes >= 2 && nb_backticks < 2
-      let nb_qquotes = 0
-   endif
-
-   if nb_quotes < 2 && nb_qquotes < 2 && nb_backticks >= 2 &&
-      \search ('`', 'cn', line('.'))
-
-      normal! ci`
-   elseif nb_quotes < 2 && nb_qquotes < 2 && nb_backticks >= 2
-      let nb_backticks = 0
-   endif
-
-   if (nb_quotes  >= 2 && nb_qquotes   >= 2) ||
-     \(nb_quotes  >= 2 && nb_backticks >= 2) ||
-     \(nb_qquotes >= 2 && nb_backticks >= 2)
-
-      " Algorithm: go to the previous quote, then look forward for a matching
-      "            one. If there isn't one, repeat these two operations until
-      "            success (3 times maximum for our 3 kind of quotes).
-      call search ('["' . "'`]", 'cb', line('.'))
-      let quote_under_cursor = matchstr(getline('.'), "['".'"`]', col('.') - 1)
-
-      if search (quote_under_cursor, 'n', line('.'))
-
-         " There are edge cases if setpos is commented out:
-         " '       1            '      X      ' will result in:
-         " '|'             '                    instead of:
-         " '                    '|'
-         "
-         " But with setpos, the following won't do anything because the cursor
-         " would eventually return to the backtick and ci' isn't correct there:
-         " '       '        "       ` (cursor on the backtick)
-         " call setpos('.', save_cursor)
-         execute 'normal! ci' . quote_under_cursor
-      else
-         for i in range(3)
-
-            call search ('["' . "'`]", 'b', line('.'))
-            let quote_under_cursor =
-               \matchstr(getline('.'), "['".'"`]', col('.') - 1)
-
-            if search (quote_under_cursor, 'n', line('.'))
-
-               " same as above
-               " call setpos('.', save_cursor)
-               execute 'normal! ci' . quote_under_cursor
-               break
+   " Match under cursor... {{{1
+   if match(getline('.'), s:pattern, col('.') - 1) == col('.') - 1
+      let char = s:single_char ? s:chars : getline('.')[col('.') - 1]
+      if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
+         let s:success = 1
+         " ...forming a pair to the right
+         let [l, c] = searchpos (escape(char, '^.~$'), 'n', line('.'))
+         if c != 0
+            if s:oprange == 'a'
+               execute 'normal!  vf'.char
+            " @@ case
+            elseif c > s:save_cursor[2] + 1
+               execute 'normal! lvt'.char
             endif
-         endfor
-
-      endif
-
-   " 2. In this second section, since there aren't pairs of quotes on the
-   "    current line, we explore the whole screen till we find one.
-   elseif nb_quotes < 2 && nb_qquotes < 2 && nb_backticks < 2
-
-      " Look for quotes from the cursor line to the bottom of the screen
-      while nb_quotes < 2 && nb_qquotes < 2 && nb_backticks < 2
-
-         normal! $
-
-         if !search ('["'."'`]", '', line('w$'))
-            break
+         " ...or to the left
          else
-            let nb_quotes    = strlen(substitute(getline('.'), "[^']", '', 'g'))
-            let nb_qquotes   = strlen(substitute(getline('.'), '[^"]', '', 'g'))
-            let nb_backticks = strlen(substitute(getline('.'), '[^`]', '', 'g'))
+            if s:oprange == 'a'
+               execute 'normal!  vF'.char
+            else
+               let [l, c] = searchpos (escape(char, '^.~$'), 'nb', line('.'))
+               if c < s:save_cursor[2] - 1
+                  execute 'normal! hvT'.char
+               endif
+            endif
          endif
-
-      endwhile
-
-      " Look for quotes from the top of the screen to the cursor line
-      if nb_quotes < 2 && nb_qquotes < 2 && nb_backticks < 2
-
-         execute line('w0')
-         normal! 0
-
-         let nb_quotes    = strlen(substitute(getline('.'), "[^']", '', 'g'))
-         let nb_qquotes   = strlen(substitute(getline('.'), '[^"]', '', 'g'))
-         let nb_backticks = strlen(substitute(getline('.'), '[^`]', '', 'g'))
-
-         while nb_quotes < 2 && nb_qquotes < 2 && nb_backticks < 2
-
-            normal! $
-
-            if !search ('["'."'`]", '', stop_line)
-               break
-            else
-               let nb_quotes    = strlen(substitute(getline('.'), "[^']", '', 'g'))
-               let nb_qquotes   = strlen(substitute(getline('.'), '[^"]', '', 'g'))
-               let nb_backticks = strlen(substitute(getline('.'), '[^`]', '', 'g'))
-            endif
-
-         endwhile
-      endif
-
-      " We are at BOF. If the is a single pair of quotes, we can directly ci it.
-      if      nb_quotes >= 2 && nb_qquotes <  2 && nb_backticks <  2
-
-         normal! ci'
-
-      elseif  nb_quotes <  2 && nb_qquotes >= 2 && nb_backticks <  2
-
-         normal! ci"
-
-      elseif  nb_quotes <  2 && nb_qquotes <  2 && nb_backticks >= 2
-
-         normal! ci`
-
-      " If all pairs are present, we can ci the quote under the cursor
-      elseif  nb_quotes >= 2 && nb_qquotes >= 2 && nb_backticks >= 2
-
-         let quote_under_cursor = matchstr(getline('.'), "['".'"`]', col('.') - 1)
-         execute 'normal! ci' . quote_under_cursor
-
-      " If there are two pairs of quotes only, we have to find the quote that is
-      " part of a pair that comes first!
-      elseif (nb_quotes  >= 2 && nb_qquotes   >= 2) ||
-            \(nb_quotes  >= 2 && nb_backticks >= 2) ||
-            \(nb_qquotes >= 2 && nb_backticks >= 2)
-
-         while 1
-
-            let quote_under_cursor =
-               \matchstr(getline('.'), "['".'"`]', col('.') - 1)
-
-            if  (nb_quotes    >= 2 && "'" == quote_under_cursor) ||
-               \(nb_qquotes   >= 2 && '"' == quote_under_cursor) ||
-               \(nb_backticks >= 2 && '`' == quote_under_cursor)
-
-               execute 'normal! ci' . quote_under_cursor
-               break
-            else
-               call search ('["' . "'`]", '', line('.'))
-            endif
-
-         endwhile
-
       endif
    endif
 
-   if my_changedtick == b:changedtick &&
-      \nb_quotes < 2 && nb_qquotes < 2 && nb_backticks < 2
+   if !s:success
+      " @  X   @ cursor between a pair on the current line {{{1
+      function! s:Process_ippair(lchars)
+         let pattern = s:single_char ? escape(a:lchars, '^.~$') : '['.a:lchars.']'
+         " Look for first match to the left...
+         if search (pattern, 'b', line('.'))
+            let lchar = s:single_char ? a:lchars : getline('.')[col('.') - 1]
+            " ...and check for a closing one to the right
+            if search (escape(lchar, '^.~$'), 'n', line('.'))
+               let s:success = 1
+               if s:oprange == 'a'
+                  execute 'normal!  vf'.lchar
+               else
+                  execute 'normal! lvt'.lchar
+               endif
+            endif
+            return lchar
+         endif
+      endfunction
 
-      echohl  ErrorMsg
-      echo   'Nothing to do'
-      echohl  None
+      let chars = s:chars
+      let char  = s:Process_ippair(chars)
+      if !s:single_char
+         while !s:success && char != ''
+            let chars = substitute(chars, char, '', 'g')
+            let char  = s:Process_ippair(chars)
+         endwhile
+      endif
 
-      call setpos('.', save_cursor)
-   else
-      normal! l
-      startinsert
+      if !s:success
+         " X  @   @ cursor before a pair {{{1
+         function! s:Process_oppair(stop_line)
+            while search (s:pattern, '', a:stop_line)
+               let char = s:single_char ? s:chars : getline('.')[col('.') - 1]
+               if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
+                  let s:success = 1
+                  if s:oprange == 'a'
+                     execute 'normal!  vf'.char
+                  else
+                     " @@ case
+                     " let [l, c] = searchpos (escape(char, '^.~$'), 'n', line('.'))
+                     " if c > col('.') + 1
+                     execute 'normal! lvt'.char
+                     " else
+                     "    " not working
+                     "    return "\<esc>"
+                     " endif
+                  endif
+                  break
+               endif
+            endwhile
+         endfunction
+
+         call setpos('.', s:save_cursor)
+         " ↓ look for a match after the cursor, also past the current line
+         call s:Process_oppair(line('w$'))
+         if !s:success
+            goto
+            " ↻ match after the cursor past the EOF
+            call s:Process_oppair(s:save_cursor[1])
+         endif
+      endif
+   endif " }}}1
+
+   if !s:success
+      call setpos('.', s:save_cursor)
+      echohl ErrorMsg | echo 'Nothing to do' | echohl None
+   " ex: ci@ when X @@
+   " my_changedtick == ... can't happen because Process_ppair doesn't do any changes !
+   " elseif my_changedtick == b:changedtick && v:operator != 'y' || mode() != 'v'
+      " echohl ErrorMsg | echo 'Nothing to do' | echohl None
    endif
 
 endfunction
 
-nmap <silent> <plug>QuotesCIQuotes :<c-u>call CI_quotes()<cr>
-nmap       "" <plug>QuotesCIQuotes
+for p in ['!','$','%','^','&','*','_','-','+','=',':',';','@','~','#','<bar>','<bslash>',',','.','?','/']
+   execute 'onoremap <silent> i'.p." :<c-u>call Process_ppair('".p."'".", 'i')<cr>"
+   execute 'onoremap <silent> a'.p." :<c-u>call Process_ppair('".p."'".", 'a')<cr>"
+   execute 'xnoremap <silent> i'.p." :<c-u>call Process_ppair('".p."'".", 'i')<cr>"
+   execute 'xnoremap <silent> a'.p." :<c-u>call Process_ppair('".p."'".", 'a')<cr>"
+endfor
+
+onoremap <silent> iq :<c-u>call Process_ppair("'`".'"', 'i')<cr>
+onoremap <silent> aq :<c-u>call Process_ppair("'`".'"', 'a')<cr>
+xnoremap <silent> iq :<c-u>call Process_ppair("'`".'"', 'i')<cr>
+xnoremap <silent> aq :<c-u>call Process_ppair("'`".'"', 'a')<cr>
+
+" Add (){}[]<> ? Would be awkward for cases like: ("...")
+onoremap <silent> i<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'i')<cr>
+onoremap <silent> a<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'a')<cr>
+xnoremap <silent> i<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'i')<cr>
+xnoremap <silent> a<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'a')<cr>
+
+nmap <silent> <plug>PunctProcess_ppair :normal ciq<cr>
+nmap       "" <plug>PunctProcess_ppaira
 
 let &cpoptions = s:savecpo
 unlet s:savecpo
