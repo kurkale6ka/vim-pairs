@@ -9,6 +9,9 @@ New punctuation text objects:
 
    `ci<space>`, `da<space>` ... modify *ANY* punctuation object
 
+__Supported punctuation signs:__  
+`-`,<code>`</code>,`!`,`"`,`$`,`%`,`^`,`&`,`*`,`_`,`+`,`=`,`:`,`;`,`@`,`~`,`#`,`|`,`\`,`,`,`.`,`?`,`/`,`'`
+
 You don't even have to be on the line you're interested in. The first screen  
 line containing a pair of quotes will be used (a top screen line will be used if  
 there are no quotes below the cursor).  
