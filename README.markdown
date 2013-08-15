@@ -11,7 +11,7 @@ New punctuation text objects:
 
    ---
 
-   `ci<space>`, `da<space>` ... modify **ANY** punctuation object
+   `ci<space>`, `da<space>` ... modify **ANY** punctuation pair
 
 Supported punctuation signs:
 ----------------------------
@@ -19,7 +19,8 @@ Supported punctuation signs:
 `!`,`$`,`%`,`^`,`&`,`*`,`_`,`-`,`+`,`=`,`:`,`;`,`@`,`~`,`#`,`|`,`\`,`,`,`.`,`?`,`/`
 
 ### Algorithm:  
-Do in order. If a step succeeds skip the rest.  
+Do in order. If a step succeeds skip the rest.
+
 1. same line:       match under the cursor: act to the right if possible, else to the left
 2. same line:       jump to a match on the left, then act to the right if possible or else repeat
 3. same line and `↓`: try matching to the right, also past the current line
@@ -28,7 +29,7 @@ Do in order. If a step succeeds skip the rest.
 Examples:
 ---------
 
-`[]` and `|` will represent the cursor  
+_`[]` and `|` will represent the cursor_  
 
 `ciq` or `""`
 ```
@@ -49,6 +50,7 @@ Lorem    dolor @        @---------@   adipisicing elit
 ```
 **_Note_**: the above is different from what Vim would do.  
 _explanation_: `'    '    [']` then `ci'` WON'T change anything!
+
 ---
 `di;` or `di<space>`
 ```
@@ -77,7 +79,7 @@ Lorem    dolor  ' sit amet     '  adipisicing elit
 incididunt ut labore et dolore [] magna aliqua.
 EOF
 ```
-Result after searching for a match and wrapping around EOF
+_Result after searching for a match and wrapping around EOF_:
 ```
 START OF FILE
 Lorem    dolor  '|'  adipisicing elit
