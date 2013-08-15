@@ -13,19 +13,20 @@ New punctuation text objects:
 
    `ci<space>`, `da<space>` ... modify **ANY** punctuation object
 
-**_Supported punctuation signs_**:
-
+Supported punctuation signs:
+----------------------------
 `` ` ``,`"`,`'`  
 `!`,`$`,`%`,`^`,`&`,`*`,`_`,`-`,`+`,`=`,`:`,`;`,`@`,`~`,`#`,`|`,`\`,`,`,`.`,`?`,`/`
 
-**_Algorithm_**:..
+**_Algorithm_**:  
 Do in order. If a step succeeds skip the rest.  
-1. same line:       match under the cursor: act to the right if possible, else to the left
-2. same line:       jump to a match on the left, then act to the right if possible or else repeat
-3. same line and `↓`: try matching to the right, also past the current line
+# same line:       match under the cursor: act to the right if possible, else to the left
+# same line:       jump to a match on the left, then act to the right if possible or else repeat
+# same line and `↓`: try matching to the right, also past the current line
                    if no match till EOF, start from byte one and do the same till initial position of cursor
 
-**_Examples_**:
+Examples:
+---------
 
 `[]` and `|` will represent the cursor  
 
@@ -34,40 +35,41 @@ Do in order. If a step succeeds skip the rest.
 Lorem [] dolor "          " adipisicing elit
 Lorem    dolor "|" adipisicing elit
 ```
-
+---
 `da^` or `da<space>`
 ```
 Lorem    dolor "    ^ []  ^     " adipisicing elit
 Lorem    dolor "         " adipisicing elit
 ```
-
+---
 `vi@` or `vi<space>`
 ```
 Lorem    dolor @        @        [@]  adipisicing elit
 Lorem    dolor @        @---------@   adipisicing elit
 ```
 **_Note_**: the above is different from what Vim would do.  
-_explanation_: '    '    ['] then ci' won't change anything!
-
+_explanation_: `'    '    [']` then `ci'` WON'T change anything!
+---
 `di;` or `di<space>`
 ```
 Lorem  %     %  []  ;            ; elit
 Lorem  %     %      ;; elit
 ```
-
+---
 `gUiq`
 ```
 Lorem    dolor  '    val `  X  ' orem       ` adipisicing elit
 Lorem    dolor  '    val `  X  ' OREM       ` adipisicing elit
 ```
-
+---
 `yi.` or `yi<space>`
 ```
 Lorem    dolor  sit amet  []   adipisicing elit
 incididunt ut labore .dolore. aliqua
-```
-_Now: dolore is in reg "_
 
+Now: dolore is in reg "
+```
+---
 `""`
 ```
 START OF FILE
