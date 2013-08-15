@@ -29,9 +29,11 @@ Do in order. If a step succeeds skip the rest.
 
 [] and | will represent the cursor
 
-ciq or ""
+`ciq` or `""`
+```
 Lorem [] dolor "          " adipisicing elit
 Lorem    dolor "|" adipisicing elit
+```
 
 da^ or da<space>
 Lorem    dolor "    ^ []  ^     " adipisicing elit
