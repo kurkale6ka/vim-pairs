@@ -1,12 +1,12 @@
 New punctuation text objects:
 =============================
 
-   `ci/`, `di;`, `yi*`, `vi@` ...
+   `ci/`, `di;`, `yi*`, `vi@` ...  
    `ca/`, `da;`, `ya*`, `va@` ...
 
    ---
 
-   `ciq` (or `""`) changes content inside **ANY** kind of quotes
+   `ciq` (or `""`) changes content inside **ANY** kind of quotes  
    `vaq`, `yiq` ...
 
    ---
@@ -14,7 +14,7 @@ New punctuation text objects:
    `ci<space>`, `da<space>` ... modify **ANY** punctuation object
 
 **_Supported punctuation signs_**:
-`` ` ``,`"`,`'`
+`` ` ``,`"`,`'`  
 `!`,`$`,`%`,`^`,`&`,`*`,`_`,`-`,`+`,`=`,`:`,`;`,`@`,`~`,`#`,`|`,`\`,`,`,`.`,`?`,`/`
 
 Algorithm:
@@ -29,7 +29,7 @@ Do in order. If a step succeeds skip the rest.
 [] and | will represent the cursor
 
 `ciq` or `""`
-Lorem `[]` dolor "          " adipisicing elit
+Lorem `[]` dolor "          " adipisicing elit  
 Lorem    dolor "`|`" adipisicing elit
 
 da^ or da<space>
