@@ -18,11 +18,11 @@ Supported punctuation signs:
 `` ` ``,`"`,`'`  
 `!`,`$`,`%`,`^`,`&`,`*`,`_`,`-`,`+`,`=`,`:`,`;`,`@`,`~`,`#`,`|`,`\`,`,`,`.`,`?`,`/`
 
-**_Algorithm_**:  
+### Algorithm:  
 Do in order. If a step succeeds skip the rest.  
-# same line:       match under the cursor: act to the right if possible, else to the left
-# same line:       jump to a match on the left, then act to the right if possible or else repeat
-# same line and `↓`: try matching to the right, also past the current line
+1. same line:       match under the cursor: act to the right if possible, else to the left
+2. same line:       jump to a match on the left, then act to the right if possible or else repeat
+3. same line and `↓`: try matching to the right, also past the current line
                    if no match till EOF, start from byte one and do the same till initial position of cursor
 
 Examples:
@@ -76,7 +76,9 @@ START OF FILE
 Lorem    dolor  ' sit amet     '  adipisicing elit
 incididunt ut labore et dolore [] magna aliqua.
 EOF
-
+```
+Result after searching for a match and wrapping around EOF
+```
 START OF FILE
 Lorem    dolor  '|'  adipisicing elit
 incididunt ut labore et dolore [] magna aliqua.
