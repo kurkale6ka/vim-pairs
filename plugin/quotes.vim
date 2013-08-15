@@ -111,6 +111,9 @@ function! Process_ppair(chars, oprange)
                      " let [l, c] = searchpos (escape(char, '^.~$'), 'n', line('.'))
                      " if c > col('.') + 1
                      execute 'normal! lvt'.char
+                     " else
+                     "    " not working
+                     "    return "\<esc>"
                      " endif
                   endif
                   break
