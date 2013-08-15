@@ -4,8 +4,12 @@ New punctuation text objects:
    `ci/`, `di;`, `yi*`, `vi@` ...  
    `ca/`, `da;`, `ya*`, `va@` ...
 
+   ---
+
    `ciq` (or `""`) changes content inside **ANY** kind of quotes  
    `vaq`, `yiq` ...
+
+   ---
 
    `ci<space>`, `da<space>` ... modify **ANY** punctuation object
 
