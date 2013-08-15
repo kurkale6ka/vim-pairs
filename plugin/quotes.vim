@@ -3,7 +3,7 @@
 "    ci/, di;, yi*, vi@ ...
 "    ca/, da;, ya*, va@ ...
 "
-"    ciq (~ "") changes content inside ANY kind of quotes
+"    ciq (or "") changes content inside ANY kind of quotes
 "    vaq, yiq ...
 "
 "    ci<space>, da<space> ... modify ANY punctuation object
@@ -151,7 +151,7 @@ onoremap <silent> aq :<c-u>call Process_ppair("'`".'"', 'a')<cr>
 xnoremap <silent> iq :<c-u>call Process_ppair("'`".'"', 'i')<cr>
 xnoremap <silent> aq :<c-u>call Process_ppair("'`".'"', 'a')<cr>
 
-" Add (){}[]<> ?
+" Add (){}[]<> ? Would be awkward for cases like: ("...")
 onoremap <silent> i<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'i')<cr>
 onoremap <silent> a<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'a')<cr>
 xnoremap <silent> i<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'i')<cr>
