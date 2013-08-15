@@ -151,7 +151,7 @@ onoremap <silent> aq :<c-u>call Process_ppair("'`".'"', 'a')<cr>
 xnoremap <silent> iq :<c-u>call Process_ppair("'`".'"', 'i')<cr>
 xnoremap <silent> aq :<c-u>call Process_ppair("'`".'"', 'a')<cr>
 
-" [-`!"$%^&*_+=:;@~#|\,.?/'] am I including < for instance, from <bar> Vs | ?
+" Add (){}[]<> ?
 onoremap <silent> i<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'i')<cr>
 onoremap <silent> a<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'a')<cr>
 xnoremap <silent> i<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'i')<cr>
