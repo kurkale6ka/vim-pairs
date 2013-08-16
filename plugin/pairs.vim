@@ -148,19 +148,27 @@ for p in ['!','$','%','^','&','*','_','-','+','=',':',';','@','~','#','<bar>','<
    execute 'xnoremap <silent> a'.p." :<c-u>call Process_ppair('".p."'".", 'a')<cr>"
 endfor
 
-onoremap <silent> iq :<c-u>call Process_ppair("'`".'"', 'i')<cr>
-onoremap <silent> aq :<c-u>call Process_ppair("'`".'"', 'a')<cr>
-xnoremap <silent> iq :<c-u>call Process_ppair("'`".'"', 'i')<cr>
-xnoremap <silent> aq :<c-u>call Process_ppair("'`".'"', 'a')<cr>
+onoremap <silent> <plug>PunctPairsIQuotes :<c-u>call Process_ppair("'`".'"', 'i')<cr>
+onoremap <silent> <plug>PunctPairsAQuotes :<c-u>call Process_ppair("'`".'"', 'a')<cr>
+xnoremap <silent> <plug>PunctPairsIQuotes :<c-u>call Process_ppair("'`".'"', 'i')<cr>
+xnoremap <silent> <plug>PunctPairsAQuotes :<c-u>call Process_ppair("'`".'"', 'a')<cr>
+omap     <silent> iq                      <plug>PunctPairsIQuotes
+omap     <silent> aq                      <plug>PunctPairsAQuotes
+xmap     <silent> iq                      <plug>PunctPairsIQuotes
+xmap     <silent> aq                      <plug>PunctPairsAQuotes
 
 " Add (){}[]<> ? Would be awkward for cases like: ("...")
-onoremap <silent> i<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'i')<cr>
-onoremap <silent> a<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'a')<cr>
-xnoremap <silent> i<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'i')<cr>
-xnoremap <silent> a<space> :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'a')<cr>
+onoremap <silent> <plug>PunctPairsIAll :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'i')<cr>
+onoremap <silent> <plug>PunctPairsAAll :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'a')<cr>
+xnoremap <silent> <plug>PunctPairsIAll :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'i')<cr>
+xnoremap <silent> <plug>PunctPairsAAll :<c-u>call Process_ppair('-`!"$%^&*_+=:;@~#<bar><bslash>,.?/'."'", 'a')<cr>
+omap     <silent> i<space>             <plug>PunctPairsIAll
+omap     <silent> a<space>             <plug>PunctPairsAAll
+xmap     <silent> i<space>             <plug>PunctPairsIAll
+xmap     <silent> a<space>             <plug>PunctPairsAAll
 
-nmap <silent> <plug>PunctProcess_ppair :normal ciq<cr>
-nmap       "" <plug>PunctProcess_ppaira
+nnoremap <silent> <plug>PunctPairsQuotes :normal ciq<cr>
+nmap     <silent> ""                     <plug>PunctPairsQuotesa
 
 let &cpoptions = s:savecpo
 unlet s:savecpo
