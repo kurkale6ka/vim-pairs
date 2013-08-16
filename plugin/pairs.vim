@@ -106,13 +106,14 @@ function! Process_ppair(chars, oprange)
                      execute 'normal!  vf'.char
                   else
                      " @@ case
-                     " let [l, c] = searchpos (escape(char, '^.~$'), 'n', line('.'))
-                     " if c > col('.') + 1
-                     execute 'normal! lvt'.char
-                     " else
-                     "    " not working
-                     "    return "\<esc>"
-                     " endif
+                     let [l, c] = searchpos (escape(char, '^.~$'), 'n', line('.'))
+                     if c > col('.') + 1
+                        execute 'normal! lvt'.char
+                     else
+                        " " not working
+                        " return "\<esc>"
+                        call setpos('.', s:save_cursor)
+                     endif
                   endif
                   break
                endif
