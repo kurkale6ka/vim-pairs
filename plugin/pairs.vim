@@ -55,7 +55,7 @@ function! Process_ppair(chars, oprange)
          " ...or to the left
          else
             if s:oprange == 'a'
-               execute 'normal!  vF'.char
+               execute 'normal! vF'.char
             else
                let [l, c] = searchpos (escape(char, '^.~$'), 'nb', line('.'))
                if c < s:save_cursor[2] - 1
@@ -103,7 +103,7 @@ function! Process_ppair(chars, oprange)
                if strlen(substitute(getline('.'), '[^'.char.']', '', 'g')) > 1
                   let s:success = 1
                   if s:oprange == 'a'
-                     execute 'normal!  vf'.char
+                     execute 'normal! vf'.char
                   else
                      " @@ case
                      let [l, c] = searchpos (escape(char, '^.~$'), 'n', line('.'))
