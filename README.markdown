@@ -1,5 +1,5 @@
-New punctuation text objects:
-=============================
+New punctuation text objects
+============================
 
    `ci/`, `di;`, `yi*`, `vi@` ...  
    `ca/`, `da;`, `ya*`, `va@` ...
@@ -13,8 +13,8 @@ New punctuation text objects:
 
    `ci<space>`, `da<space>` ... modify **ANY** punctuation pair
 
-Supported punctuation signs:
-----------------------------
+Supported punctuation signs
+---------------------------
 `` ` ``,`"`,`'`  
 `!`,`$`,`%`,`^`,`&`,`*`,`_`,`-`,`+`,`=`,`:`,`;`,`@`,`~`,`#`,`|`,`\`,`,`,`.`,`?`,`/`
 

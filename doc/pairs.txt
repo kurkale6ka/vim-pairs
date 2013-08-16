@@ -1,0 +1,127 @@
+*pairs.txt* For Vim version 7                          Last change: 16 August 2013
+
+                                ___       _       ~
+                               / _ \___ _(_)______~
+                              / ___/ _ `/ / __(_-<~
+                             /_/   \_,_/_/_/ /___/~
+
+                         New punctuation text objects~
+
+                              By Dimitar Dimitrov
+                                   kurkale6ka
+                                mitkofr@yahoo.fr
+
+                                Reference Manual~
+
+Latest version at:
+https://github.com/kurkale6ka/vim-pairs
+
+1. Introduction                                                      |pairs-intro|
+2. Supported punctuation signs                                 |pairs-punctuation|
+3. Algorithm                                                     |pairs-algorithm|
+4. Examples                                                       |pairs-examples|
+
+The functionality mentioned here is a plugin, see |add-plugin|. You can avoid
+loading this plugin by setting the pairs global variable in your |vimrc| file:
+>
+   :let g:loaded_ptext_objects = 1
+<
+================================================================================
+INTRODUCTION                                                         *pairs-intro*
+
+ci/, di;, yi*, vi@ ...
+ca/, da;, ya*, va@ ...
+
+ciq (or "") changes content inside ANY kind of quotes
+vaq, yiq ...
+
+ci<space>, da<space> ... modify ANY punctuation pair
+
+================================================================================
+SUPPORTED PUNCTUATION SIGNS                                    *pairs-punctuation*
+
+` " '~
+! $ % ^ & * _ - + = : ; @ ~ # | \ , . ? /~
+
+================================================================================
+ALGORITHM                                                        *pairs-algorithm*
+
+Do in order. If a step succeeds skip the rest.
+
+ a) same line:       match under the cursor: act to the right if possible,
+                     else to the left
+ b) same line:       jump to a match on the left, then act to the right if
+                     possible or else repeat
+ c) same line and ↓: try matching to the right, also past the current line if
+                     no match till EOF, start from byte one and do the same
+                     till initial position of cursor
+
+================================================================================
+EXAMPLES                                                          *pairs-examples*
+
+[] and | will represent the cursor
+----------------------------------
+>
+   ciq or ""
+<
+Lorem [] dolor "          " adipisicing elit
+Lorem    dolor "|" adipisicing elit
+
+--------------------------------------------------------------------------------
+>
+   da^ or da<space>
+<
+Lorem    dolor "    ^ []  ^     " adipisicing elit
+Lorem    dolor "         " adipisicing elit
+
+--------------------------------------------------------------------------------
+>
+   vi@ or vi<space>
+<
+Lorem    dolor @        @        [@]  adipisicing elit
+Lorem    dolor @        @---------@   adipisicing elit
+
+Note: the above is different from what Vim would do.
+explanation: '      '      ['] then ci' WON'T change anything!
+
+--------------------------------------------------------------------------------
+>
+   di; or di<space>
+<
+Lorem  %     %  []  ;            ; elit
+Lorem  %     %      ;; elit
+
+--------------------------------------------------------------------------------
+>
+   gUiq
+<
+Lorem    dolor  '    val `  X  ' orem       ` adipisicing elit
+Lorem    dolor  '    val `  X  ' OREM       ` adipisicing elit
+
+--------------------------------------------------------------------------------
+>
+   yi. or yi<space>
+<
+Lorem    dolor  sit amet  []   adipisicing elit
+incididunt ut labore .dolore. aliqua
+
+Now: dolore is in reg "
+
+--------------------------------------------------------------------------------
+>
+   ""
+<
+START OF FILE
+Lorem    dolor  ' sit amet     '  adipisicing elit
+incididunt ut labore et dolore [] magna aliqua.
+EOF
+
+Result after searching for a match and wrapping around EOF:
+
+START OF FILE
+Lorem    dolor  '|'  adipisicing elit
+incididunt ut labore et dolore [] magna aliqua.
+EOF
+
+================================================================================
+ vim: textwidth=80 tabstop=8 filetype=help
