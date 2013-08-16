@@ -11,11 +11,9 @@
 " Author: Dimitar Dimitrov (mitkofr@yahoo.fr), kurkale6ka
 "
 " Latest version at:
-" https://github.com/kurkale6ka/vim-quotes
+" https://github.com/kurkale6ka/vim-pairs
 "
 " TODO: Fix @@ and stopinsert if nothing to do after cix !!!
-"       Describe algo
-"       Explain difference with    '       '          '
 
 if exists('g:loaded_ptext_objects') || &compatible || v:version < 700
    if &compatible && &verbose
