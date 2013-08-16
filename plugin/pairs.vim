@@ -134,6 +134,8 @@ function! Process_ppair(chars, oprange)
    if !s:success
       call setpos('.', s:save_cursor)
       echohl ErrorMsg | echo 'Nothing to do' | echohl None
+      " " not working
+      " return "\<esc>"
    " ex: ci@ when X @@
    " my_changedtick == ... can't happen because Process_ppair doesn't do any changes !
    " elseif my_changedtick == b:changedtick && v:operator != 'y' || mode() != 'v'
