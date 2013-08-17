@@ -26,8 +26,9 @@ endif
 
 let g:loaded_ptext_objects = 1
 
-let s:savecpo = &cpoptions
-set cpoptions&vim
+let s:savecpo   = &cpoptions
+let s:savemagic = &magic
+set cpoptions&vim magic
 
 function! Process_ppair(chars, oprange)
 
@@ -174,4 +175,5 @@ nnoremap <silent> <plug>PunctPairsQuotes :normal ciq<cr>
 nmap     <silent> ""                     <plug>PunctPairsQuotesa
 
 let &cpoptions = s:savecpo
-unlet s:savecpo
+let &magic     = s:savemagic
+unlet s:savecpo s:savemagic
