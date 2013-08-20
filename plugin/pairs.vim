@@ -111,9 +111,10 @@ function! Process_ppair(chars, oprange)
                      if c > col('.') + 1
                         execute 'normal! lvt'.char
                      else
-                        " " not working
-                        " return "\<esc>"
+                        " This is a pseudo solution as ideally I wanna cancel
+                        " the omap which the return below fails to do (l.139: same)
                         call setpos('.', s:save_cursor)
+                        " return "\<esc>"
                      endif
                   endif
                   break
@@ -135,7 +136,6 @@ function! Process_ppair(chars, oprange)
    if !s:success
       call setpos('.', s:save_cursor)
       echohl ErrorMsg | echo 'Nothing to do' | echohl None
-      " " not working
       " return "\<esc>"
    " ex: ci@ when X @@
    " my_changedtick == ... can't happen because Process_ppair doesn't do any changes !
